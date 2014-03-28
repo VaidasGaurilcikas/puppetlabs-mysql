@@ -317,10 +317,6 @@ Allows you to remove the backup scripts. Can be 'present' or 'absent'.
 
 An array of two elements to set the backup time.  Allows ['23', '5'] or ['3', '45'] for HH:MM times.
 
-#####`postscript`
-
-A script that is executed at when the backup is finished. This could be used to (r)sync the backup to a central store. This script can be either a single line that is directly executed or a number of lines, when supplied as an array. It could also be one or more externally managed (executable) files.
-
 ####mysql::server::monitor
 
 #####`mysql_monitor_username`
@@ -434,23 +430,21 @@ Creates a database with a user and assigns some privileges.
     }
 ```
 
-Or using a different resource name with exported resources,
+If you set the sql param to a file when creating a database,
+the file gets imported into the new database.
+
+For large sql files you should raise the $import_timeout parameter,
+set by default to 300 seconds
 
 ```puppet
-    @@mysql::db { "mydb_${fqdn}":
+    mysql::db { 'mydb':
       user     => 'myuser',
       password => 'mypass',
-      dbname   => 'mydb',
-      host     => ${fqdn},
+      host     => 'localhost',
       grant    => ['SELECT', 'UPDATE'],
-      tag      => $domain,
+      sql      => '/path/to/sqlfile',
+      import_timeout => 900,
     }
-```
-
-Then collect it on the remote DB server.
-
-```puppet
-    Mysql::Db <<| tag == $domain |>>
 ```
 
 ###Providers
